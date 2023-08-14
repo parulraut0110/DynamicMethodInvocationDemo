@@ -69,6 +69,13 @@ class Employee {
 		this.id = id;
 	}
 	
+	public String getLastName(String name) {
+		String[] splitString = name.split(" ", -1);
+		System.out.println(splitString[2]);
+		return splitString[splitString.length - 1];
+		
+	}
+	
 }
 
 public class MethodHandleTest {
@@ -77,7 +84,7 @@ public class MethodHandleTest {
 		
 		Employee employee = new Employee("Shreya", 21);
 		MethodType getNameMT;
-		MethodHandle getNameMH, getKlassNameMH, getCtorMH, getGetterMH;
+		MethodHandle getNameMH, getKlassNameMH, getCtorMH, getGetterMH, getLastNameMH;
         MethodHandles.Lookup lookup = MethodHandles.lookup();
         getNameMT = MethodType.methodType(String.class);
         getKlassNameMH = lookup.findStatic(Employee.class, "getKlass" , getNameMT);
@@ -113,6 +120,15 @@ public class MethodHandleTest {
         String name2 = (String) getGetterMH.invoke(employee);
         System.out.println("Name: " + name2);
         
+        getLastNameMH = lookup.findVirtual(Employee.class, "getLastName", MethodType.methodType(String.class, String.class));
+        Timer.start();
+        System.out.println("Last Name : " + (String)getLastNameMH.invokeWithArguments(employee1, "SHREYA RAMESHWAR GULHANE"));
+        Timer.end();
+        System.out.println("Time through handle : " + Timer.duration());
+        Timer.start();
+        System.out.println("Last Name : " + employee1.getLastName("SHREYA RAMESHWAR GULHANE"));
+        Timer.end();
+        System.out.println("Time through direct invokation : " + Timer.duration());
         
 	}
 
