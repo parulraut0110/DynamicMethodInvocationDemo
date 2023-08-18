@@ -2,8 +2,10 @@ package methodhandle;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Constructor;
+import java.util.Arrays;
 
 class Timer {
 	static long start;
@@ -31,24 +33,6 @@ class Employee {
 		this.id = id;
 	}
 	
-	/*
-	public String getName() {
-		return name;
-	}
-	
-	public int getId() {
-		return id;
-	}
-	
-	public String toString() {
-		return "Name : " + name + " Id : " + id;
-	}
-	
-	public void setName(String name) {
-		this.name = name;
-	}
-	*/
-	
 	static public String getKlass() {
 		return "Employee.class";
 	}
@@ -73,7 +57,6 @@ class Employee {
 		String[] splitString = name.split(" ", -1);
 		System.out.println(splitString[2]);
 		return splitString[splitString.length - 1];
-		
 	}
 	
 }
@@ -81,7 +64,6 @@ class Employee {
 public class MethodHandleTest {
 
 	public static void main(String[] args) throws Throwable {
-		
 		Employee employee = new Employee("Shreya", 21);
 		MethodType getNameMT;
 		MethodHandle getNameMH, getKlassNameMH, getCtorMH, getGetterMH, getLastNameMH;
@@ -119,17 +101,34 @@ public class MethodHandleTest {
         getGetterMH = lookup.findGetter(Employee.class, "name", String.class);
         String name2 = (String) getGetterMH.invoke(employee);
         System.out.println("Name: " + name2);
-        
+       
         getLastNameMH = lookup.findVirtual(Employee.class, "getLastName", MethodType.methodType(String.class, String.class));
         Timer.start();
-        System.out.println("Last Name : " + (String)getLastNameMH.invokeWithArguments(employee1, "SHREYA RAMESHWAR GULHANE"));
+        System.out.println("Last name:- " + (String)getLastNameMH.invokeWithArguments(employee1, "Shreya Rameshwar Gulhane"));
         Timer.end();
         System.out.println("Time through handle : " + Timer.duration());
-        Timer.start();
-        System.out.println("Last Name : " + employee1.getLastName("SHREYA RAMESHWAR GULHANE"));
-        Timer.end();
-        System.out.println("Time through direct invokation : " + Timer.duration());
         
-	}
+        Timer.start();
+        System.out.println("Last name:- " + employee1.getLastName("Shreya Rameshwar Gulhane"));
+        Timer.end();
+        System.out.println("Time through direct invoke : " + Timer.duration());
+        
+        System.out.println("Type of Method Handle : " + getNameMH.type());
+        System.out.println("Is Method Handle Varag Collector? : " + getNameMH.isVarargsCollector());
+       
+
+        MethodHandle deepToStringMH = MethodHandles.publicLookup().findStatic(Arrays.class, "deepToString", MethodType.methodType(String.class, Object[].class));
+        Object[] objArr = new Object[] {"Hello", "World"};
+        System.out.println(objArr[0]);
+        System.out.println(objArr[1]);
+        var s = (String) deepToStringMH.invokeExact(objArr);
+        System.out.println(s);
+        deepToStringMH.asCollector(Object[].class, 0);
+        
+        System.out.println(deepToStringMH.type());
+        
+        var s1 = (String)deepToStringMH.invokeExact(new Object[] {"Good", "Morning"});
+        System.out.println(s1);
+	    }
 
 }
